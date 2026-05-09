@@ -13,7 +13,7 @@
 - 开发工具：Android Studio
 - 开发语言：Kotlin
 - 核心UI组件：RecyclerView, CardView
-- 本地存储：SharedPreferences（收藏功能）
+- 本地存储：SharedPreferences
 - 图片加载：Glide
 
 ## 页面结构
@@ -24,4 +24,3 @@
 
 ## 开发者信息
 - 姓名：钟浩远
-- 学号：2023463030239
