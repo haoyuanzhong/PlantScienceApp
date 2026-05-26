@@ -44,7 +44,7 @@ class PlantDaoTest {
             name = "玫瑰",
             scientificName = "Rosa",
             category = 1,
-            imageResId = 0,
+            imageName = "rose",
             description = "爱情的象征",
             lightTips = "充足阳光",
             waterTips = "适量浇水",
@@ -59,8 +59,8 @@ class PlantDaoTest {
 
     @Test
     fun queryPlantsByCategory() = runTest {
-        val plant1 = Plant(1, "多肉A", "Succulent A", 2, 0, "", "", "", "", "多肉")
-        val plant2 = Plant(2, "绿萝", "Epipremnum", 1, 0, "", "", "", "", "观叶")
+        val plant1 = Plant(1, "多肉A", "Succulent A", 2, "aloe", "", "", "", "", "多肉")
+        val plant2 = Plant(2, "绿萝", "Epipremnum", 1, "aloe", "", "", "", "", "观叶")
         
         plantDao.insertPlant(plant1)
         plantDao.insertPlant(plant2)
@@ -72,7 +72,7 @@ class PlantDaoTest {
 
     @Test
     fun insertAndDeleteFavorite() = runTest {
-        val plant = Plant(10, "仙人掌", "Cactus", 3, 0, "", "", "", "", "耐旱")
+        val plant = Plant(10, "仙人掌", "Cactus", 3, "cactus", "", "", "", "", "耐旱")
         plantDao.insertPlant(plant)
 
         val favorite = Favorite(favId = 1, plantId = 10, addedTime = System.currentTimeMillis())
