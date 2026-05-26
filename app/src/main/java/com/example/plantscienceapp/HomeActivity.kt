@@ -62,9 +62,8 @@ class HomeActivity : AppCompatActivity() {
         
         lifecycleScope.launch(Dispatchers.IO) {
             val existingPlants = plantDao.getAllPlants()
-            // 如果数据量少于 15 个（当前完整样本数），则重新同步数据
-            if (existingPlants.size < 15) {
-                // 先清空旧数据，防止名称重复（如龟背竹、仙人掌重复出现）
+            // 更新：当前总共有 17 种植物图片，如果少于 17 则重新同步
+            if (existingPlants.size < 17) {
                 plantDao.deleteAllPlants()
                 
                 val samples = listOf(
@@ -80,6 +79,18 @@ class HomeActivity : AppCompatActivity() {
                         description = "叶形奇特，孔裂纹状，极像龟背，是著名的网红植物。",
                         lightTips = "喜温暖潮湿，忌强光暴晒。", waterTips = "喜湿润，生长期需水量大。",
                         growthEnv = "肥沃疏松的微酸性土", tags = "网红, 耐阴"
+                    ),
+                    Plant(
+                        name = "琴叶榕", scientificName = "Ficus lyrata", category = 0, imageName = "fiddleleaf",
+                        description = "叶片如提琴形状，株形高大挺拔，是提升居家格调的理想之选。",
+                        lightTips = "喜明亮的散射光，避免烈日直射。", waterTips = "遵循“见干见湿”原则，保持通风。",
+                        growthEnv = "温暖湿润且通风良好的环境", tags = "北欧风, 观叶植物"
+                    ),
+                    Plant(
+                        name = "橡皮树", scientificName = "Ficus elastica", category = 0, imageName = "rubbertree",
+                        description = "叶片肥厚宽大，色彩浓绿，具有极佳的粉尘吸附能力。",
+                        lightTips = "喜阳也耐阴，光照充足叶色更美。", waterTips = "耐旱性强，保持盆土微潮即可。",
+                        growthEnv = "疏松肥沃的腐叶土", tags = "除尘, 庄重"
                     ),
                     Plant(
                         name = "虎皮兰", scientificName = "Sansevieria trifasciata", category = 0, imageName = "snakeplant",
@@ -113,7 +124,7 @@ class HomeActivity : AppCompatActivity() {
                     ),
                     Plant(
                         name = "文竹", scientificName = "Asparagus setaceus", category = 0, imageName = "asparagusfern",
-                        description = "姿态潇潇，叶片纤细，富有书卷气息。",
+                        description = "姿态潇洒，叶片纤细，富有书卷气息。",
                         lightTips = "喜半阴，不耐阳光直射。", waterTips = "怕干也怕涝，保持微潮。",
                         growthEnv = "肥沃疏松的砂质土", tags = "优雅, 书房必备"
                     ),
