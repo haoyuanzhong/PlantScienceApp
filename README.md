@@ -63,3 +63,7 @@ com.example.plantscienceapp
 ├── MainActivity.kt            # AI 识别展示页：处理拍照/相册调用、结果解析、学名提取及一键智能收录
 ├── PlantListActivity.kt       # 列表多模式视图：支持图鉴/收藏/种植园多维展示、实时搜索及快捷浇水操作
 └── PlantDetailActivity.kt     # 详情页：沉浸式大图展示、收藏状态切换及种植状态无缝交互同步逻辑
+
+| 首页数据看板 (Home) | AI 智能识花 (MainActivity) | 科学养护图鉴 (List) | 沉浸式种植园管理 (Detail) |
+| :---: | :---: | :---: | :---: |
+| <img width="528" height="1074" alt="image" src="https://github.com/user-attachments/assets/16f9d9f4-424b-4855-b71c-a804ae6eb5d4" /> | [请在此处插入AI识别截图] | [请在此处插入列表页截图] | [请在此处插入详情页截图] |
