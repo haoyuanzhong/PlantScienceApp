@@ -8,7 +8,8 @@ import com.example.plantscienceapp.data.dao.PlantDao
 import com.example.plantscienceapp.data.entity.Favorite
 import com.example.plantscienceapp.data.entity.Plant
 
-@Database(entities = [Plant::class, Favorite::class], version = 3, exportSchema = false)
+// 升级版本号至 7，以包含【我的种植】新增字段
+@Database(entities = [Plant::class, Favorite::class], version = 7, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun plantDao(): PlantDao
@@ -24,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "plant_database"
                 )
-                .fallbackToDestructiveMigration() // 允许破坏性迁移以快速应用 schema 变更并清除旧的重复数据
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance

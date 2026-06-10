@@ -1,3 +1,28 @@
 <resources>
-    <string name="app_name">PlantScienceapp</string>
+    <string name="app_name">植物助手</string>
+    <string name="back">返回</string>
+    <string name="collect_to_book">收录图鉴</string>
+    <string name="return_home">返回首页</string>
+    <string name="identifying">正在深度解析植物特征...</string>
+    <string name="recognize_fail">未能准确识别，请确保光线充足</string>
+    <string name="network_error">网络请求失败，请检查连接</string>
+    <string name="added_to_planting">已加入种植园，开启智能提醒</string>
+    <string name="removed_from_planting">已移出种植园</string>
+    <string name="water_success">%1$s 已完成浇水</string>
+    <string name="watering_pro_info">智能养护中：建议每 %1$d 天浇水一次</string>
+    <string name="watering_hint">开启后将为您智能生成浇水提醒</string>
+    <string name="watering_days_left">距离下次浇水：%1$d 天</string>
+    <string name="watering_today">今天建议浇水</string>
+    <string name="watering_overdue">已逾期 %1$d 天未浇</string>
+    <string name="collection_progress_format">植物图鉴收集进度：%1$d / %2$d</string>
+    <string name="planting_count_format">正在养护 %1$d 盆植物</string>
+    <string name="already_collected">已在您的图鉴中</string>
+    <string name="recognize_success">成功识别</string>
+    <string name="unknown_plant">未知植物</string>
+    <string name="fav_added">已存入收藏夹</string>
+    <string name="fav_removed">已从收藏夹移除</string>
+    <string name="my_collection">我的植物图鉴</string>
+    <string name="my_favorites">我的收藏夹</string>
+    <string name="my_planting">我的种植园</string>
+    <string name="no_description">暂无详细介绍。</string>
 </resources>

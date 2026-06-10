@@ -11,7 +11,8 @@ import com.example.plantscienceapp.data.entity.Plant
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +27,6 @@ class PlantDaoTest {
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        // 使用内存数据库进行测试
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
         plantDao = db.plantDao()
     }
@@ -38,48 +38,75 @@ class PlantDaoTest {
     }
 
     @Test
-    fun insertAndGetAllPlants() = runTest {
+    fun insertAndGetPlant() = runTest {
         val plant = Plant(
             plantId = 1,
-            name = "玫瑰",
-            scientificName = "Rosa",
-            category = 1,
-            imageName = "rose",
-            description = "爱情的象征",
-            lightTips = "充足阳光",
-            waterTips = "适量浇水",
-            growthEnv = "温带",
-            tags = "花卉"
+            name = "绿萝",
+            scientificName = "Epipremnum aureum",
+            category = 2,
+            imageName = "aloe",
+            description = "科普描述",
+            careTips = "建议阴凉",
+            growthEnv = "我的图鉴",
+            isCollected = true,
+            isMyPlanting = false,
+            lastWateredTime = 0,
+            wateringFrequency = 7
         )
         plantDao.insertPlant(plant)
-        val allPlants = plantDao.getAllPlants()
-        assertEquals(1, allPlants.size)
-        assertEquals("玫瑰", allPlants[0].name)
+        val result = plantDao.getPlantByName("绿萝")
+        assertNotNull(result)
+        assertEquals("Epipremnum aureum", result?.scientificName)
     }
 
     @Test
-    fun queryPlantsByCategory() = runTest {
-        val plant1 = Plant(1, "多肉A", "Succulent A", 2, "aloe", "", "", "", "", "多肉")
-        val plant2 = Plant(2, "绿萝", "Epipremnum", 1, "aloe", "", "", "", "", "观叶")
-        
-        plantDao.insertPlant(plant1)
-        plantDao.insertPlant(plant2)
-
-        val succulents = plantDao.getPlantsByCategory(2)
-        assertEquals(1, succulents.size)
-        assertEquals("多肉A", succulents[0].name)
-    }
-
-    @Test
-    fun insertAndDeleteFavorite() = runTest {
-        val plant = Plant(10, "仙人掌", "Cactus", 3, "cactus", "", "", "", "", "耐旱")
+    fun testMyPlantingQuery() = runTest {
+        val plantId = 5L
+        val plant = Plant(
+            plantId = plantId,
+            name = "多肉",
+            scientificName = "Succulent",
+            category = 2,
+            imageName = "cactus",
+            description = "可爱",
+            careTips = "少浇水",
+            growthEnv = "我的图鉴",
+            isCollected = true,
+            isMyPlanting = true,
+            lastWateredTime = 1000L,
+            wateringFrequency = 14
+        )
         plantDao.insertPlant(plant)
 
-        val favorite = Favorite(favId = 1, plantId = 10, addedTime = System.currentTimeMillis())
+        val plantingList = plantDao.getMyPlantingPlants()
+        assertEquals(1, plantingList.size)
+        assertEquals(true, plantingList[0].isMyPlanting)
+    }
+
+    @Test
+    fun favoriteCycle() = runTest {
+        val pId = 99L
+        val plant = Plant(
+            plantId = pId,
+            name = "玫瑰",
+            scientificName = "Rosa",
+            category = 2,
+            imageName = "rose",
+            description = "",
+            careTips = "",
+            growthEnv = "",
+            isCollected = true,
+            isMyPlanting = false,
+            lastWateredTime = 0,
+            wateringFrequency = 7
+        )
+        plantDao.insertPlant(plant)
+
+        val favorite = Favorite(favId = 1, plantId = pId, addedTime = System.currentTimeMillis())
         plantDao.insertFavorite(favorite)
-        
+        assertNotNull(plantDao.getFavoriteByPlantId(pId))
+
         plantDao.deleteFavorite(favorite)
-        // 如果运行到这里没有抛出异常（如外键约束错误），则视为通过
-        assertTrue(true)
+        assertNull(plantDao.getFavoriteByPlantId(pId))
     }
 }

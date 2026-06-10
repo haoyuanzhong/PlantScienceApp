@@ -2,23 +2,18 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="text_grey">#757575</color>
+    <color name="text_grey">#999999</color>
 
-    <!-- 设计图卡片背景色 -->
-    <color name="bg_indoor">#F1FAF5</color>
-    <color name="bg_outdoor">#F1F7FC</color>
-    <color name="bg_favorite">#F8F4FD</color>
+    <!-- 分类卡片强调色 -->
+    <color name="accent_indoor">#2E7D32</color>
+    <color name="accent_outdoor">#1565C0</color>
+    <color name="accent_favorite">#FF8F00</color>
 
-    <!-- 设计图强调色 -->
-    <color name="accent_indoor">#3BAF6D</color>
-    <color name="accent_outdoor">#45A2D9</color>
-    <color name="accent_favorite">#7F57C1</color>
+    <!-- 分类卡片背景色 (浅色调) -->
+    <color name="bg_indoor">#E8F5E9</color>
+    <color name="bg_outdoor">#E3F2FD</color>
+    <color name="bg_favorite">#FFF8E1</color>
 
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="green_500">#FF4CAF50</color>
-    <color name="green_700">#FF388E3C</color>
+    <!-- 通用背景色 -->
+    <color name="bg_grey">#F5F5F5</color>
 </resources>

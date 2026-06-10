@@ -20,27 +20,37 @@ interface PlantDao {
     @Query("SELECT * FROM plants WHERE plantId = :plantId")
     suspend fun getPlantById(plantId: Long): Plant?
 
-    @Query("SELECT * FROM plants WHERE category = :category")
-    suspend fun getPlantsByCategory(category: Int): List<Plant>
+    @Query("SELECT * FROM plants WHERE name = :name LIMIT 1")
+    suspend fun getPlantByName(name: String): Plant?
+
+    @Delete
+    suspend fun deletePlant(plant: Plant)
 
     @Query("DELETE FROM plants")
     suspend fun deleteAllPlants()
 
-    // 本地模糊搜索
     @Query("SELECT * FROM plants WHERE name LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%'")
     suspend fun searchPlants(query: String): List<Plant>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavorite(favorite: Favorite)
 
-    @Delete
+    @Delete(entity = Favorite::class)
     suspend fun deleteFavorite(favorite: Favorite)
 
-    // 根据 plantId 获取收藏记录，用于判断是否已收藏
     @Query("SELECT * FROM favorites WHERE plantId = :plantId LIMIT 1")
     suspend fun getFavoriteByPlantId(plantId: Long): Favorite?
 
-    // 多表联查：获取用户收藏的所有植物详细信息
     @Query("SELECT plants.* FROM plants INNER JOIN favorites ON plants.plantId = favorites.plantId ORDER BY favorites.addedTime DESC")
     suspend fun getFavoritePlants(): List<Plant>
+
+    // --- 【我的种植】相关查询 ---
+    @Query("SELECT * FROM plants WHERE isMyPlanting = 1")
+    suspend fun getMyPlantingPlants(): List<Plant>
+
+    @Query("UPDATE plants SET isMyPlanting = :isPlanting, lastWateredTime = :wateredTime, wateringFrequency = :frequency WHERE plantId = :plantId")
+    suspend fun updatePlantingStatus(plantId: Long, isPlanting: Boolean, wateredTime: Long, frequency: Int)
+
+    @Query("UPDATE plants SET lastWateredTime = :wateredTime WHERE plantId = :plantId")
+    suspend fun updateWateringTime(plantId: Long, wateredTime: Long)
 }

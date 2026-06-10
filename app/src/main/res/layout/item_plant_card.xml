@@ -20,9 +20,9 @@
             android:layout_height="80dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvPlantName"
@@ -30,9 +30,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="植物名称"
+            android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ivPlantThumb"
             app:layout_constraintTop_toTopOf="@id/ivPlantThumb" />
@@ -42,25 +42,49 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Scientific Name"
+            android:textColor="#444444"
             android:textSize="14sp"
             android:textStyle="italic"
-            android:textColor="#444444"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/tvPlantName"
             app:layout_constraintTop_toBottomOf="@id/tvPlantName" />
 
-        <TextView
-            android:id="@+id/tvPlantTags"
+        <!-- 浇水提醒区域：调整约束至 tvScientificName 下方 -->
+        <LinearLayout
+            android:id="@+id/layoutWatering"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="耐阴, 好养"
-            android:textColor="#2E7D32"
-            android:textSize="13sp"
-            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/tvPlantName"
-            app:layout_constraintTop_toBottomOf="@id/tvScientificName" />
+            app:layout_constraintTop_toBottomOf="@id/tvScientificName">
+
+            <TextView
+                android:id="@+id/tvWateringStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="距离下次浇水：3天"
+                android:textColor="#E64A19"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWater"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="60dp"
+                android:padding="4dp"
+                android:text="已浇水"
+                android:textSize="11sp"
+                app:icon="@drawable/ic_launcher_foreground"
+                app:iconSize="16dp" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

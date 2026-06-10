@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "plants",
-    indices = [Index(value = ["name"], unique = true)] // 强制名称唯一，防止重复插入
+    indices = [Index(value = ["name"], unique = true)]
 )
 data class Plant(
     @PrimaryKey(autoGenerate = true)
@@ -16,8 +16,12 @@ data class Plant(
     val category: Int,
     val imageName: String,
     val description: String,
-    val lightTips: String,
-    val waterTips: String,
+    val careTips: String, 
     val growthEnv: String,
-    val tags: String
+    val isCollected: Boolean = false,
+    
+    // 【我的种植】新增字段
+    val isMyPlanting: Boolean = false,
+    val lastWateredTime: Long = 0,
+    val wateringFrequency: Int = 7 // 默认 7 天
 )

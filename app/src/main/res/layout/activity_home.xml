@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:fitsSystemWindows="true"> <!-- 自动适配状态栏和摄像头高度 -->
+    android:fitsSystemWindows="true">
 
-    <!-- 顶部标题栏：恢复为经典的 64dp 高度 -->
+    <!-- 顶部标题栏 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="24dp"
                 android:text="探索自然之美"
                 android:textColor="@color/black"
                 android:textSize="28sp"
@@ -73,43 +73,127 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/tvHomeSubtitle"
-                android:layout_width="wrap_content"
+            <!-- 收集进度展示 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardProgress"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="发现植物，感受自然的治愈力量"
-                android:textColor="@color/text_grey"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="@id/tvHomeTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvHomeTitle" />
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#F5F5F5"
+                app:layout_constraintTop_toBottomOf="@id/tvHomeTitle">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:id="@+id/tvProgressTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="植物图鉴收集进度：0/0"
+                        android:textColor="#444444"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                    <ProgressBar
+                        android:id="@+id/pbCollection"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:layout_marginTop="8dp"
+                        android:progress="0"
+                        android:max="10"
+                        android:progressDrawable="@android:drawable/progress_horizontal" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-            <!-- 右侧装饰大图 -->
-            <ImageView
-                android:id="@+id/ivDecorativePlant"
-                android:layout_width="200dp"
-                android:layout_height="240dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/aloe"
-                android:alpha="0.8"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <!-- 拍照识花 大按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnScan"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="16dp"
+                android:text="📷 拍照识别并收集"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:backgroundTint="@color/accent_indoor"
+                app:layout_constraintTop_toBottomOf="@id/cardProgress" />
 
-            <!-- 室内植物分类卡片 -->
+            <!-- 【新增】我的种植卡片 -->
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cardIndoor"
+                android:id="@+id/cardMyPlanting"
                 android:layout_width="match_parent"
                 android:layout_height="130dp"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="160dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_home_card_favorite"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintTop_toBottomOf="@id/btnScan">
+
+                <ImageView
+                    android:id="@+id/ivPlantingIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginStart="16dp"
+                    android:src="@drawable/rose"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvPlantingTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="35dp"
+                    android:text="我的种植园"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/ivPlantingIcon"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvPlantingDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="智能浇水建议与提醒"
+                    android:textColor="@color/text_grey"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="@id/tvPlantingTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvPlantingTitle" />
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_arrow_right_circle"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/accent_favorite" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 统一的“我的植物图鉴”卡片 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardMyCollection"
+                android:layout_width="match_parent"
+                android:layout_height="130dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/bg_home_card_indoor"
                 android:clickable="true"
                 android:focusable="true"
-                android:elevation="0dp"
-                app:layout_constraintTop_toBottomOf="@id/tvHomeSubtitle">
+                app:layout_constraintTop_toBottomOf="@id/cardMyPlanting">
 
                 <ImageView
-                    android:id="@+id/ivIndoorIcon"
+                    android:id="@+id/ivCollectionIcon"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:layout_marginStart="16dp"
@@ -119,27 +203,27 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tvIndoorTitle"
+                    android:id="@+id/tvCollectionTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="35dp"
-                    android:text="室内常见植物"
+                    android:text="我的植物图鉴"
                     android:textColor="@color/black"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@id/ivIndoorIcon"
+                    app:layout_constraintStart_toEndOf="@id/ivCollectionIcon"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="发现适合室内种植的植物"
+                    android:text="查看所有已收录的植物"
                     android:textColor="@color/text_grey"
                     android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="@id/tvIndoorTitle"
-                    app:layout_constraintTop_toBottomOf="@id/tvIndoorTitle" />
+                    app:layout_constraintStart_toStartOf="@id/tvCollectionTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvCollectionTitle" />
 
                 <ImageView
                     android:layout_width="40dp"
@@ -152,73 +236,17 @@
                     app:tint="@color/accent_indoor" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 户外植物分类卡片 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cardOutdoor"
-                android:layout_width="match_parent"
-                android:layout_height="130dp"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_home_card_outdoor"
-                android:clickable="true"
-                android:focusable="true"
-                app:layout_constraintTop_toBottomOf="@id/cardIndoor">
-
-                <ImageView
-                    android:id="@+id/ivOutdoorIcon"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginStart="16dp"
-                    android:src="@drawable/outdoor"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tvOutdoorTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="35dp"
-                    android:text="户外常见植物"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@id/ivOutdoorIcon"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="探索大自然中的植物"
-                    android:textColor="@color/text_grey"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="@id/tvOutdoorTitle"
-                    app:layout_constraintTop_toBottomOf="@id/tvOutdoorTitle" />
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_arrow_right_circle"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/accent_outdoor" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
             <!-- 收藏夹卡片 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/btnFavorites"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="30dp"
-                android:background="@drawable/bg_home_card_favorite"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_home_card_outdoor"
                 android:clickable="true"
                 android:focusable="true"
-                app:layout_constraintTop_toBottomOf="@id/cardOutdoor">
+                app:layout_constraintTop_toBottomOf="@id/cardMyCollection">
 
                 <ImageView
                     android:id="@+id/ivFavIcon"
