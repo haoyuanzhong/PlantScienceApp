@@ -18,7 +18,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.plantscienceapp.R
 import com.example.plantscienceapp.data.entity.Plant
 import com.example.plantscienceapp.utils.ImageUtils
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class PlantAdapter(
@@ -41,11 +45,11 @@ class PlantAdapter(
         private val onPlantClick: (Plant) -> Unit,
         private val onWaterClick: ((Plant) -> Unit)? = null
     ) : RecyclerView.ViewHolder(itemView) {
-        
+
         private val ivPlantThumb: ImageView = itemView.findViewById(R.id.ivPlantThumb)
         private val tvPlantName: TextView = itemView.findViewById(R.id.tvPlantName)
         private val tvScientificName: TextView = itemView.findViewById(R.id.tvScientificName)
-        
+
         private val layoutWatering: View = itemView.findViewById(R.id.layoutWatering)
         private val tvWateringStatus: TextView = itemView.findViewById(R.id.tvWateringStatus)
         private val btnWater: View = itemView.findViewById(R.id.btnWater)
@@ -58,10 +62,11 @@ class PlantAdapter(
             currentPlantId = plant.plantId
             ivPlantThumb.setImageBitmap(null)
             ivPlantThumb.setImageResource(R.drawable.ic_launcher_background)
-            
+
             val context = itemView.context
-            
-            tvPlantName.text = if (plant.isCollected) plant.name else context.getString(R.string.unknown_plant)
+
+            tvPlantName.text =
+                if (plant.isCollected) plant.name else context.getString(R.string.unknown_plant)
             tvScientificName.text = plant.scientificName
 
             if (plant.isCollected) {
@@ -73,7 +78,8 @@ class PlantAdapter(
 
             if (plant.isMyPlanting) {
                 layoutWatering.visibility = View.VISIBLE
-                val nextWaterTime = plant.lastWateredTime + (plant.wateringFrequency * 24L * 60 * 60 * 1000)
+                val nextWaterTime =
+                    plant.lastWateredTime + (plant.wateringFrequency * 24L * 60 * 60 * 1000)
                 val timeLeft = nextWaterTime - System.currentTimeMillis()
                 val totalHoursLeft = timeLeft / (60 * 60 * 1000)
 
@@ -83,13 +89,16 @@ class PlantAdapter(
                         tvWateringStatus.text = context.getString(R.string.watering_days_left, days)
                         tvWateringStatus.setTextColor(0xFF2E7D32.toInt())
                     }
+
                     totalHoursLeft >= 0 -> {
                         tvWateringStatus.text = context.getString(R.string.watering_today)
                         tvWateringStatus.setTextColor(0xFFFF9800.toInt())
                     }
+
                     else -> {
                         val daysOverdue = Math.abs(totalHoursLeft / 24).toInt() + 1
-                        tvWateringStatus.text = context.getString(R.string.watering_overdue, daysOverdue)
+                        tvWateringStatus.text =
+                            context.getString(R.string.watering_overdue, daysOverdue)
                         tvWateringStatus.setTextColor(0xFFD32F2F.toInt())
                     }
                 }
@@ -101,10 +110,11 @@ class PlantAdapter(
             val imageSource = plant.imageName
             if (imageSource.isNotEmpty()) {
                 val file = if (imageSource.startsWith("/")) File(imageSource)
-                           else File(context.filesDir, imageSource)
+                else File(context.filesDir, imageSource)
 
                 if (file.exists()) {
-                    val lifecycleOwner = itemView.findViewTreeLifecycleOwner() ?: context.findLifecycleOwner()
+                    val lifecycleOwner =
+                        itemView.findViewTreeLifecycleOwner() ?: context.findLifecycleOwner()
                     loadJob = lifecycleOwner?.lifecycleScope?.launch {
                         val bitmap = withContext(Dispatchers.IO) {
                             ImageUtils.decodeSampledBitmapFromFile(file.absolutePath, 300, 300)
@@ -114,7 +124,11 @@ class PlantAdapter(
                         }
                     }
                 } else {
-                    val resId = context.resources.getIdentifier(imageSource, "drawable", context.packageName)
+                    val resId = context.resources.getIdentifier(
+                        imageSource,
+                        "drawable",
+                        context.packageName
+                    )
                     if (resId != 0) ivPlantThumb.setImageResource(resId)
                 }
             }
@@ -133,7 +147,10 @@ class PlantAdapter(
     }
 
     class PlantDiffCallback : DiffUtil.ItemCallback<Plant>() {
-        override fun areItemsTheSame(oldItem: Plant, newItem: Plant): Boolean = oldItem.plantId == newItem.plantId
-        override fun areContentsTheSame(oldItem: Plant, newItem: Plant): Boolean = oldItem == newItem
+        override fun areItemsTheSame(oldItem: Plant, newItem: Plant): Boolean =
+            oldItem.plantId == newItem.plantId
+
+        override fun areContentsTheSame(oldItem: Plant, newItem: Plant): Boolean =
+            oldItem == newItem
     }
 }

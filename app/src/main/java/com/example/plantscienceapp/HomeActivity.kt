@@ -25,16 +25,17 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var pbCollection: ProgressBar
     private var photoUri: Uri? = null
 
-    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            photoUri?.let { uri ->
-                val intent = Intent(this, MainActivity::class.java).apply {
-                    putExtra("EXTRA_IMAGE_URI", uri.toString())
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                photoUri?.let { uri ->
+                    val intent = Intent(this, MainActivity::class.java).apply {
+                        putExtra("EXTRA_IMAGE_URI", uri.toString())
+                    }
+                    startActivity(intent)
                 }
-                startActivity(intent)
             }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,20 +53,20 @@ class HomeActivity : AppCompatActivity() {
         pbCollection = findViewById(R.id.pbCollection)
 
         findViewById<View>(R.id.cardMyCollection)?.setOnClickListener {
-            startActivity(Intent(this, PlantListActivity::class.java).apply { 
-                putExtra("EXTRA_IS_PLANTING_MODE", false) 
+            startActivity(Intent(this, PlantListActivity::class.java).apply {
+                putExtra("EXTRA_IS_PLANTING_MODE", false)
             })
         }
 
         findViewById<View>(R.id.cardMyPlanting)?.setOnClickListener {
-            startActivity(Intent(this, PlantListActivity::class.java).apply { 
-                putExtra("EXTRA_IS_PLANTING_MODE", true) 
+            startActivity(Intent(this, PlantListActivity::class.java).apply {
+                putExtra("EXTRA_IS_PLANTING_MODE", true)
             })
         }
 
         findViewById<View>(R.id.btnFavorites).setOnClickListener {
-            startActivity(Intent(this, PlantListActivity::class.java).apply { 
-                putExtra("EXTRA_IS_FAVORITE_MODE", true) 
+            startActivity(Intent(this, PlantListActivity::class.java).apply {
+                putExtra("EXTRA_IS_FAVORITE_MODE", true)
             })
         }
 
@@ -97,7 +98,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun createImageFile(): File {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val timeStamp: String =
+            SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile("PLANT_${timeStamp}_", ".jpg", storageDir)
     }
@@ -115,7 +117,8 @@ class HomeActivity : AppCompatActivity() {
             pbCollection.progress = collectedCount
 
             val plantingCount = allPlants.count { it.isMyPlanting }
-            findViewById<TextView>(R.id.tvPlantingDesc)?.text = getString(R.string.planting_count_format, plantingCount)
+            findViewById<TextView>(R.id.tvPlantingDesc)?.text =
+                getString(R.string.planting_count_format, plantingCount)
         }
     }
 }

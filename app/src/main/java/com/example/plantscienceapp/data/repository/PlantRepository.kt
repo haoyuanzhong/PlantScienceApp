@@ -3,17 +3,28 @@ package com.example.plantscienceapp.data.repository
 import com.example.plantscienceapp.data.dao.PlantDao
 import com.example.plantscienceapp.data.entity.Favorite
 import com.example.plantscienceapp.data.entity.Plant
+import com.example.plantscienceapp.network.DeepSeekMessage
+import com.example.plantscienceapp.network.DeepSeekRequest
+import com.example.plantscienceapp.network.DeepSeekResponseFormat
 import com.example.plantscienceapp.network.PlantApiService
+import com.example.plantscienceapp.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.util.Calendar
 
 /**
- * 植物数据仓库 - 升级版智能养护引擎
+ * 植物数据仓库 - 最终优化版
+ * 1. 百度 AI 仅负责识别名称。
+ * 2. DeepSeek AI 负责生成百科（介绍、养护、学名）。
+ * 3. 彻底移除养护逻辑的降级保护，确保 AI 专家性。
  */
 class PlantRepository(
     private val plantDao: PlantDao,
     private val apiService: PlantApiService
 ) {
+    private val DEEPSEEK_API_KEY = "sk-fed0903f8a5f4f1cb402285668a879ac"
+
     suspend fun getAllPlants(): List<Plant> = withContext(Dispatchers.IO) {
         plantDao.getAllPlants()
     }
@@ -35,7 +46,12 @@ class PlantRepository(
         if (existing != null) {
             plantDao.deleteFavorite(existing)
         } else {
-            plantDao.insertFavorite(Favorite(plantId = plantId, addedTime = System.currentTimeMillis()))
+            plantDao.insertFavorite(
+                Favorite(
+                    plantId = plantId,
+                    addedTime = System.currentTimeMillis()
+                )
+            )
         }
     }
 
@@ -43,64 +59,101 @@ class PlantRepository(
         plantDao.getFavoritePlants()
     }
 
-    /**
-     * 删除已收集的植物
-     */
     suspend fun deletePlant(plant: Plant) = withContext(Dispatchers.IO) {
         plantDao.deletePlant(plant)
     }
-
-    // --- 【我的种植】智能逻辑升级 ---
 
     suspend fun getMyPlantingPlants(): List<Plant> = withContext(Dispatchers.IO) {
         plantDao.getMyPlantingPlants()
     }
 
-    /**
-     * 核心逻辑：智能切换种植状态并计算科学浇水频率
-     */
     suspend fun togglePlantingStatus(plant: Plant) = withContext(Dispatchers.IO) {
         if (plant.isMyPlanting) {
             plantDao.updatePlantingStatus(plant.plantId, false, 0, 7)
         } else {
-            val frequency = calculateIntelligentFrequency(plant)
-            plantDao.updatePlantingStatus(plant.plantId, true, System.currentTimeMillis(), frequency)
+            val frequency = calculateAIIntelligentFrequency(plant)
+            plantDao.updatePlantingStatus(
+                plant.plantId,
+                true,
+                System.currentTimeMillis(),
+                frequency
+            )
         }
     }
+
+    private suspend fun calculateAIIntelligentFrequency(plant: Plant): Int =
+        withContext(Dispatchers.IO) {
+            val calendar = Calendar.getInstance()
+            val month = calendar.get(Calendar.MONTH) + 1
+            val prompt = """
+            你是一个植物专家。当前是 ${month} 月。
+            请根据以下信息给出室内建议浇水频率：
+            名称：${plant.name}
+            习性：${plant.careTips}
+            
+            要求：仅返回一个 JSON 对象，格式为 {"frequency": 数字}。
+        """.trimIndent()
+
+            val request = DeepSeekRequest(
+                messages = listOf(DeepSeekMessage(role = "user", content = prompt)),
+                response_format = DeepSeekResponseFormat(type = "json_object")
+            )
+
+            val response = RetrofitClient.deepSeekService.getChatCompletions(
+                "Bearer $DEEPSEEK_API_KEY",
+                request
+            )
+            var jsonContent = response.choices.firstOrNull()?.message?.content
+                ?: throw Exception("AI response empty")
+
+            if (jsonContent.contains("```json")) {
+                jsonContent = jsonContent.substringAfter("```json").substringBefore("```").trim()
+            }
+
+            val jsonObject = JSONObject(jsonContent)
+            return@withContext jsonObject.getInt("frequency").coerceIn(1, 45)
+        }
 
     /**
-     * 智能养护规则引擎：
-     * 综合植物名称、详细描述和养护建议，通过权重评分计算最优浇水周期。
+     * 生成完整百科档案 (介绍, 养护建议, 拉丁学名)
      */
-    private fun calculateIntelligentFrequency(plant: Plant): Int {
-        val content = (plant.name + plant.description + plant.careTips).lowercase()
-        
-        // 1. 极度耐旱/多肉类 (15-30天)
-        val dryKeywords = listOf("仙人", "多肉", "耐旱", "宁干勿湿", "干透", "沙漠", "厚叶", "芦荟", "虎皮兰")
-        // 2. 喜湿/水生类 (2-4天)
-        val wetKeywords = listOf("喜湿", "喜水", "水培", "蕨", "苔藓", "薄荷", "喷雾", "湿润", "不耐旱")
-        // 3. 中性/常见室内植物 (7-10天)
-        val normalKeywords = listOf("见干见湿", "散射光", "室内", "阳台")
-
-        var dryScore = 0
-        var wetScore = 0
-
-        dryKeywords.forEach { if (content.contains(it)) dryScore += 10 }
-        wetKeywords.forEach { if (content.contains(it)) wetScore += 10 }
-        normalKeywords.forEach { if (content.contains(it)) { dryScore += 2; wetScore += 2 } }
-
-        return when {
-            // 特殊品种识别
-            plant.name.contains("仙人球") || plant.name.contains("金琥") -> 25
-            plant.name.contains("绿萝") || plant.name.contains("吊兰") -> 7
+    suspend fun generatePlantEncyclopedia(plantName: String): Triple<String, String, String> =
+        withContext(Dispatchers.IO) {
+            val prompt = """
+            你是一个植物百科专家。请为以下植物生成结构化的百科信息：
+            植物名称：$plantName
             
-            // 基于评分的结果
-            dryScore > wetScore + 5 -> 20 // 显著耐旱
-            wetScore > dryScore + 5 -> 3  // 显著喜湿
-            dryScore > 0 && dryScore == wetScore -> 10 // 较顽强
-            else -> 7 // 默认值
+            要求：
+            1. description: 一段简洁的介绍，包含特点和价值（50-100字）。
+            2. careTips: 详细的养护建议，包含光照、水分、温度（100字以内）。
+            3. scientificName: 准确的拉丁学名。
+            
+            仅返回一个 JSON 对象，格式为 {"description": "...", "careTips": "...", "scientificName": "..."}。
+        """.trimIndent()
+
+            val request = DeepSeekRequest(
+                messages = listOf(DeepSeekMessage(role = "user", content = prompt)),
+                response_format = DeepSeekResponseFormat(type = "json_object")
+            )
+
+            val response = RetrofitClient.deepSeekService.getChatCompletions(
+                "Bearer $DEEPSEEK_API_KEY",
+                request
+            )
+            var jsonContent = response.choices.firstOrNull()?.message?.content
+                ?: throw Exception("AI response empty")
+
+            if (jsonContent.contains("```json")) {
+                jsonContent = jsonContent.substringAfter("```json").substringBefore("```").trim()
+            }
+
+            val jsonObject = JSONObject(jsonContent)
+            return@withContext Triple(
+                jsonObject.getString("description"),
+                jsonObject.getString("careTips"),
+                jsonObject.getString("scientificName")
+            )
         }
-    }
 
     suspend fun recordWatering(plantId: Long) = withContext(Dispatchers.IO) {
         plantDao.updateWateringTime(plantId, System.currentTimeMillis())

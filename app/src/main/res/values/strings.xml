@@ -5,24 +5,35 @@
     <string name="return_home">返回首页</string>
     <string name="identifying">正在深度解析植物特征...</string>
     <string name="recognize_fail">未能准确识别，请确保光线充足</string>
+    <string name="recognize_success">识别成功！DeepSeek 已为您生成百科</string>
+    <string name="already_collected">图鉴中已存在该植物</string>
     <string name="network_error">网络请求失败，请检查连接</string>
-    <string name="added_to_planting">已加入种植园，开启智能提醒</string>
+    <string name="added_to_planting">AI 养护方案已生成</string>
     <string name="removed_from_planting">已移出种植园</string>
     <string name="water_success">%1$s 已完成浇水</string>
-    <string name="watering_pro_info">智能养护中：建议每 %1$d 天浇水一次</string>
-    <string name="watering_hint">开启后将为您智能生成浇水提醒</string>
+    <string name="watering_pro_info">AI 专家建议：每 %1$d 天浇水一次</string>
+    <string name="watering_hint">开启后 AI 将为您分析季节性养护频率</string>
+    <string name="watering_ai_loading">DeepSeek AI 专家正在进行季节性诊断...</string>
     <string name="watering_days_left">距离下次浇水：%1$d 天</string>
     <string name="watering_today">今天建议浇水</string>
     <string name="watering_overdue">已逾期 %1$d 天未浇</string>
-    <string name="collection_progress_format">植物图鉴收集进度：%1$d / %2$d</string>
-    <string name="planting_count_format">正在养护 %1$d 盆植物</string>
-    <string name="already_collected">已在您的图鉴中</string>
-    <string name="recognize_success">成功识别</string>
-    <string name="unknown_plant">未知植物</string>
     <string name="fav_added">已存入收藏夹</string>
     <string name="fav_removed">已从收藏夹移除</string>
+    <string name="delete_confirm_title">彻底删除</string>
+    <string name="delete_confirm_msg">确定要删除“%1$s”吗？对应的照片也将被同步清理。</string>
+    <string name="delete_success">已成功移除记录</string>
+    <string name="unknown_plant">未知植物</string>
     <string name="my_collection">我的植物图鉴</string>
     <string name="my_favorites">我的收藏夹</string>
     <string name="my_planting">我的种植园</string>
-    <string name="no_description">暂无详细介绍。</string>
+    <string name="btn_delete">删除</string>
+    <string name="btn_cancel">取消</string>
+
+    <!-- 补全 HomeActivity 缺失的资源 -->
+    <string name="collection_progress_format">植物图鉴收集进度：%1$d/%2$d</string>
+    <string name="planting_count_format">当前正在养护 %1$d 盆植物</string>
+
+    <!-- AI 状态提示 -->
+    <string name="ai_generating_encyclopedia">DeepSeek 正在生成百科档案...</string>
+    <string name="ai_generation_fail">AI 百科生成失败，请检查网络</string>
 </resources>

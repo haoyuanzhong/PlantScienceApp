@@ -49,7 +49,12 @@ interface PlantDao {
     suspend fun getMyPlantingPlants(): List<Plant>
 
     @Query("UPDATE plants SET isMyPlanting = :isPlanting, lastWateredTime = :wateredTime, wateringFrequency = :frequency WHERE plantId = :plantId")
-    suspend fun updatePlantingStatus(plantId: Long, isPlanting: Boolean, wateredTime: Long, frequency: Int)
+    suspend fun updatePlantingStatus(
+        plantId: Long,
+        isPlanting: Boolean,
+        wateredTime: Long,
+        frequency: Int
+    )
 
     @Query("UPDATE plants SET lastWateredTime = :wateredTime WHERE plantId = :plantId")
     suspend fun updateWateringTime(plantId: Long, wateredTime: Long)

@@ -31,7 +31,7 @@ data class BaikeInfo(
 )
 
 interface PlantApiService {
-    
+
     // 获取百度 AI Access Token
     @GET("oauth/2.0/token")
     suspend fun getAccessToken(

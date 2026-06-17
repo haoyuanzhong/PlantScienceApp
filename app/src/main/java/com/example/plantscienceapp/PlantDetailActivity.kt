@@ -1,7 +1,6 @@
 package com.example.plantscienceapp
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -25,8 +24,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * 植物详情页
- * 增加了删除已收集植物的功能。
+ * 植物详情页 - 最终加固版
+ * 修复：1. 同步清理本地物理照片文件；2. 增加 AI 诊断加载反馈；3. 状态强同步锁与资源规范化。
  */
 class PlantDetailActivity : AppCompatActivity() {
 
@@ -69,30 +68,49 @@ class PlantDetailActivity : AppCompatActivity() {
                 tvScientificName.text = initialPlant.scientificName
                 tvDesc.text = initialPlant.description
                 tvCareTips.text = initialPlant.careTips
-                
+
                 // 1. 初始化 UI 状态
                 switchPlanting.isChecked = initialPlant.isMyPlanting
                 updateWateringUI(initialPlant, tvWateringInfo)
 
-                // 2. 状态切换监听
+                // 2. 状态切换监听 (集成 DeepSeek AI 诊断反馈)
                 switchPlanting.setOnCheckedChangeListener { buttonView, isChecked ->
                     if (buttonView.isPressed) {
                         lifecycleScope.launch {
                             buttonView.isEnabled = false
+                            if (isChecked) {
+                                // 视觉反馈：显示 AI 正在诊断
+                                tvWateringInfo.text = getString(R.string.watering_ai_loading)
+                                tvWateringInfo.setTextColor(0xFFFF9800.toInt())
+                            }
+
                             try {
                                 val current = repository.getPlantById(plantId) ?: return@launch
                                 if (current.isMyPlanting != isChecked) {
+                                    // 触发 AI 引擎计算频率
                                     repository.togglePlantingStatus(current)
+
                                     val updated = repository.getPlantById(plantId) ?: return@launch
                                     updateWateringUI(updated, tvWateringInfo)
-                                    val msg = if (updated.isMyPlanting) getString(R.string.added_to_planting) 
-                                             else getString(R.string.removed_from_planting)
-                                    Toast.makeText(this@PlantDetailActivity, msg, Toast.LENGTH_SHORT).show()
+
+                                    val msg =
+                                        if (updated.isMyPlanting) getString(R.string.added_to_planting)
+                                        else getString(R.string.removed_from_planting)
+                                    Toast.makeText(
+                                        this@PlantDetailActivity,
+                                        msg,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     viewModel.fetchMyPlantingPlants()
                                 }
                             } catch (e: Exception) {
                                 buttonView.isChecked = !isChecked
-                                Toast.makeText(this@PlantDetailActivity, "操作失败，请重试", Toast.LENGTH_SHORT).show()
+                                updateWateringUI(initialPlant, tvWateringInfo)
+                                Toast.makeText(
+                                    this@PlantDetailActivity,
+                                    getString(R.string.network_error),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } finally {
                                 buttonView.isEnabled = true
                             }
@@ -106,21 +124,7 @@ class PlantDetailActivity : AppCompatActivity() {
                 }
 
                 // 异步加载大图
-                val imageSource = initialPlant.imageName
-                if (imageSource.isNotEmpty()) {
-                    val file = if (imageSource.startsWith("/")) File(imageSource)
-                               else File(filesDir, imageSource)
-                    
-                    if (file.exists()) {
-                        val bitmap = withContext(Dispatchers.IO) {
-                            ImageUtils.decodeSampledBitmapFromFile(file.absolutePath, 800, 800)
-                        }
-                        bitmap?.let { b -> ivHeader.setImageBitmap(b) }
-                    } else {
-                        val resId = resources.getIdentifier(imageSource, "drawable", packageName)
-                        if (resId != 0) ivHeader.setImageResource(resId)
-                    }
-                }
+                loadPlantImage(initialPlant.imageName, ivHeader)
             }
             updateFavoriteIcon(fabFavorite)
         }
@@ -130,24 +134,60 @@ class PlantDetailActivity : AppCompatActivity() {
                 repository.toggleFavorite(plantId)
                 updateFavoriteIcon(fabFavorite)
                 val isNowFav = repository.isFavorite(plantId)
-                Toast.makeText(this@PlantDetailActivity, 
-                    if (isNowFav) getString(R.string.fav_added) else getString(R.string.fav_removed), 
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@PlantDetailActivity,
+                    if (isNowFav) getString(R.string.fav_added) else getString(R.string.fav_removed),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun loadPlantImage(imageSource: String, imageView: ImageView) {
+        if (imageSource.isEmpty()) return
+        lifecycleScope.launch {
+            val file =
+                if (imageSource.startsWith("/")) File(imageSource) else File(filesDir, imageSource)
+            if (file.exists()) {
+                val bitmap = withContext(Dispatchers.IO) {
+                    ImageUtils.decodeSampledBitmapFromFile(
+                        file.absolutePath,
+                        800,
+                        800
+                    )
+                }
+                bitmap?.let { b -> imageView.setImageBitmap(b) }
+            } else {
+                val resId = resources.getIdentifier(imageSource, "drawable", packageName)
+                if (resId != 0) imageView.setImageResource(resId)
             }
         }
     }
 
     private fun showDeleteConfirmationDialog(plant: Plant) {
         AlertDialog.Builder(this)
-            .setTitle("删除确认")
-            .setMessage("确定要删除“${plant.name}”吗？此操作不可撤销，且会同时移除相关的种植和收藏记录。")
-            .setPositiveButton("删除") { _, _ ->
-                viewModel.deletePlant(plant) {
-                    Toast.makeText(this, "已成功删除“${plant.name}”", Toast.LENGTH_SHORT).show()
-                    finish()
+            .setTitle(R.string.delete_confirm_title)
+            .setMessage(getString(R.string.delete_confirm_msg, plant.name))
+            .setPositiveButton(R.string.btn_delete) { _, _ ->
+                lifecycleScope.launch {
+                    // 物理清理：如果存在拍摄的照片文件，则同步清理
+                    if (plant.imageName.isNotEmpty() && plant.imageName.startsWith("/")) {
+                        withContext(Dispatchers.IO) {
+                            val file = File(plant.imageName)
+                            if (file.exists()) file.delete()
+                        }
+                    }
+                    viewModel.deletePlant(plant) {
+                        Toast.makeText(
+                            this@PlantDetailActivity,
+                            getString(R.string.delete_success),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
+                    }
                 }
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 

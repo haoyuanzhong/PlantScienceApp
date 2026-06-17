@@ -52,7 +52,7 @@ class PlantListActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory)[PlantViewModel::class.java]
 
         val rvPlants = findViewById<RecyclerView>(R.id.rvPlants)
-        
+
         adapter = PlantAdapter(
             onPlantClick = { plant ->
                 val intent = Intent(this, PlantDetailActivity::class.java).apply {
@@ -63,11 +63,15 @@ class PlantListActivity : AppCompatActivity() {
             onWaterClick = { plant ->
                 if (isPlantingMode) {
                     viewModel.waterPlant(plant.plantId)
-                    Toast.makeText(this, getString(R.string.water_success, plant.name), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.water_success, plant.name),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         )
-        
+
         rvPlants.layoutManager = LinearLayoutManager(this)
         rvPlants.adapter = adapter
 
@@ -79,6 +83,7 @@ class PlantListActivity : AppCompatActivity() {
                 if (!query.isNullOrBlank()) startSearch(query)
                 return true
             }
+
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (newText.isNullOrBlank()) refreshData()
                 else startSearch(newText)
@@ -95,10 +100,12 @@ class PlantListActivity : AppCompatActivity() {
                     viewModel.fetchFavoritePlants()
                     viewModel.favoritePlants.collectLatest { adapter.submitList(it) }
                 }
+
                 isPlantingMode -> {
                     viewModel.fetchMyPlantingPlants()
                     viewModel.myPlantingPlants.collectLatest { adapter.submitList(it) }
                 }
+
                 else -> {
                     viewModel.fetchAllPlants()
                     viewModel.allPlants.collectLatest { adapter.submitList(it) }

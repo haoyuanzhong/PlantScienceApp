@@ -16,10 +16,10 @@ data class Plant(
     val category: Int,
     val imageName: String,
     val description: String,
-    val careTips: String, 
+    val careTips: String,
     val growthEnv: String,
     val isCollected: Boolean = false,
-    
+
     // 【我的种植】新增字段
     val isMyPlanting: Boolean = false,
     val lastWateredTime: Long = 0,
