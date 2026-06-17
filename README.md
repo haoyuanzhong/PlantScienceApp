@@ -14,15 +14,26 @@
 
 ## ✨ 核心技术亮点 (Technical Highlights)
 
-* **🧠 智能养护规则引擎 (Smart Care Engine)**
-    基于多维度关键词评分与正则表达式，项目在 `PlantRepository` 中实现了一套科学养护算法。系统能自动从 AI 返回的繁杂百科文本中精准抓取“3天”、“一周”等浇水周期天数，并结合植物“喜湿/耐旱”等生态特征自动量化最科学的浇水频率。
-* **🔄 全链路响应式数据流 (Reactive Architecture)**
-    项目深度践行现代 Android 开发理念，全链路采用 **Kotlin Coroutines + StateFlow / Flow**。数据层（Room）的任何变动（如快捷浇水、删除、收藏变动）均能实时、自适应地驱动 UI 界面自动刷新，彻底告别传统的旧式刷新回调。
-* **🛡️ 强同步交互交互机制 (State Synchronization)**
-    针对移动端高频的异步快速点击写入 Bug，在 `PlantDetailActivity` 中独创了“用户交互判定 (isPressed) + 自动状态回滚”机制，确保种植园开关在极端快速操作下，UI 视觉提示与本地底层的数据库状态绝对一致。
-* **⚡ 硬件级性能优化与资源管理**
-    针对图鉴高频大图加载，自研 `ImageUtils` 实现基于 `InSampleSize` 的图片异步采样压缩技术。同时在 `PlantAdapter` 中利用 `LifecycleScope` 精准绑定视图生命周期，有效防止了列表快速滑动时的内存溢出 (OOM) 与内存泄漏。
+* **🧠 双 AI 协同逻辑解耦 (Dual AI Orchestration)**
+    > 项目放弃了传统的单一识别模式，采用“视觉 + 大模型”的深度组合，将业务清晰划分为两层：
+    * **感知层 (`Baidu AI`)**：专注于图像到名称的极速映射。
+    * **认知层 (`DeepSeek LLM`)**：通过结构化 `Prompt` 获取植物的拉丁学名、精简百科描述及个性化养护建议。这种架构彻底解决了传统爬虫百科数据杂乱、不可读的问题。
 
+* **🌡️ 季节感应养护引擎 (Season-Aware Care Engine)**
+    * 依托 `DeepSeek` 的推理能力，系统实现了**动态养护诊断**。
+    * 应用会自动提取当前月份作为上下文输入，AI 会根据季节特征（如夏季蒸发快、冬季进入休眠等）动态计算浇水频率。相比传统的固定规则，该引擎提供了更具专家级的精准指导。
+
+* **🔄 全链路响应式数据流 (Reactive Architecture)**
+    * 深度践行现代 Android 理念，全栈采用 `Kotlin Coroutines` + `Flow`。
+    * 底层的 `Room` 数据库变动（如快捷浇水、收藏状态）可通过 `Flow` 实时、异步地驱动 UI 自动刷新，确保了界面的实时性与丝滑交互体验。
+
+* **🛡️ 交互状态强同步锁 (State Synchronization)**
+    * 针对移动端高频点击可能触发的数据库写入竞争，在详情页实现了 **“交互判定 (`isPressed`) + 自动状态回滚”** 机制。
+    * 确保 AI 诊断加载过程中的 UI 视觉状态与底层持久化数据绝对一致，杜绝了多线程并发带来的状态撕裂。
+
+* **⚡ 硬件级资源优化 (Performance Optimization)**
+    * 针对高清图片加载，自研 `ImageUtils` 实现基于像素采样的**异步采样技术（`inSampleSize`）**。
+    * 在图片进入内存前进行比例压缩，有效防止了在加载大量拍摄植物照片时的内存溢出 (`OOM`) 风险，极大地优化了应用的内存足迹。
 ---
 
 ## 📱 运行环境要求
@@ -41,28 +52,28 @@
 ```text
 com.example.plantscienceapp
 ├── adapter
-│   └── PlantAdapter.kt        # 核心适配器：处理植物卡片展示、倒计时逻辑与异步图片生命周期绑定
+│   └── PlantAdapter.kt        # 核心适配器：处理植物卡片展示、倒计时逻辑与异步图片绑定
 ├── data
 │   ├── dao
-│   │   └── PlantDao.kt        # 数据库访问接口：包含响应式 CRUD、模糊搜索及种植养护状态动态更新
+│   │   └── PlantDao.kt        # 数据库访问接口：响应式 CRUD 与养护状态动态更新
 │   ├── entity
-│   │   ├── Plant.kt           # 植物主表实体：包含基础信息、种植标记、上次浇水时间及科学养护频率
-│   │   └── Favorite.kt        # 收藏附表实体：通过外键 CASCADE（级联删除）安全关联 Plant 主表
+│   │   └── Plant.kt           # 植物实体：包含基础信息、种植标记、科学养护频率等核心字段
 │   ├── repository
-│   │   └── PlantRepository.kt # 数据仓库：解耦 UI 与数据源，封装核心业务逻辑与智能养护频率评分算法
-│   └── AppDatabase.kt         # Room 数据库：版本管理 (v7) 及毁灭性迁移安全配置
+│   │   └── PlantRepository.kt # 数据仓库：封装 DeepSeek 百科生成算法与季节性养护诊断逻辑
+│   └── AppDatabase.kt         # Room 数据库：版本管理与迁移配置
 ├── network
-│   ├── PlantApiService.kt     # 百度 AI 识别 API 定义：包含 OAuth2.0 Token 获取及植物图像智能识别接口
-│   └── RetrofitClient.kt      # 网络请求客户端：单例化 Retrofit 配置与拦截器管理
+│   ├── PlantApiService.kt     # 百度视觉接口：处理植物图像到名称的识别
+│   ├── DeepSeekApiService.kt  # DeepSeek 接口：处理百科生成、学名校验及 AI 专家诊断
+│   └── RetrofitClient.kt      # 网络客户端：单例化配置与双 API 拦截器管理
 ├── utils
-│   └── ImageUtils.kt          # 工具类：高效处理图片位图采样与按需缩放，从根本上防止 OOM
+│   └── ImageUtils.kt          # 工具类：高效处理位图采样，防止 OOM
 ├── viewmodel
-│   ├── PlantViewModel.kt      # 业务逻辑核心：利用 LiveData/StateFlow 驱动界面状态生命周期感知
-│   └── PlantViewModelFactory.kt # 工厂类：实现高效的依赖注入，解耦 Repository 与 Dao 初始化
-├── HomeActivity.kt            # 首页 Dashboard：数据可视化统计图鉴收集进度与今日养护概况
-├── MainActivity.kt            # AI 识别展示页：处理拍照/相册调用、结果解析、学名提取及一键智能收录
-├── PlantListActivity.kt       # 列表多模式视图：支持图鉴/收藏/种植园多维展示、实时搜索及快捷浇水操作
-└── PlantDetailActivity.kt     # 详情页：沉浸式大图展示、收藏状态切换及种植状态无缝交互同步逻辑
+│   ├── PlantViewModel.kt      # 业务逻辑：利用 StateFlow 驱动生命周期感知的界面状态
+│   └── PlantViewModelFactory.kt # 依赖注入：解耦 Repository 与 ViewModel 初始化
+├── HomeActivity.kt            # 首页：可视化统计图集进度与今日养护概况
+├── MainActivity.kt            # AI 识别展示页：双 AI 协同处理、结果解析与一键收录
+├── PlantListActivity.kt       # 多模式列表：支持图鉴/收藏/种植园多维展示与实时搜索
+└── PlantDetailActivity.kt     # 详情页：AI 诊断加载反馈、收藏切换及种植状态同步
 ```
 | 首页数据看板 (Home) | AI 智能识花 (MainActivity) | 科学养护图鉴 (List) | 沉浸式种植园管理 (Detail) |
 | :---: | :---: | :---: | :---: |
